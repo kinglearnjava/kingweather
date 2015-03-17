@@ -32,7 +32,7 @@ public class Utility {
         BufferedReader input = null;
         try {
             InputStream in = MyApplication.getContext().getResources()
-                    .openRawResource(com.example.kingweather.R.raw.area_id);
+                    .openRawResource(com.kingweather.app.R.raw.area_id);
             input = new BufferedReader(new InputStreamReader(in, "utf-8"));
             String line = null;
             while ((line = input.readLine()) != null) {
@@ -58,6 +58,7 @@ public class Utility {
         if (!TextUtils.isEmpty(line)) {
             LogUtil.v("读取文本", "读取出的文本文件每一行内容为:" + line);
             String[] data = line.split("\\|");
+            if (data.length < 9 ) return;
             LogUtil.v("读取文本", "data数组长度为：" + data.length + "\nDATA数组为：" + Arrays.toString(data));
             if (data != null && data.length > 0) {
                 int provinceId = handleProvince(data, kingWeatherDB);
@@ -125,7 +126,7 @@ public class Utility {
     private static void handleCounty(String[] data, int cityId,
             KingWeatherDB kingWeatherDB) {
         String countyName = data[2];
-        String countyCode = data[0].substring(3);
+        String countyCode = data[0]; // 用于查天气
         if (!countyCodes.containsKey(countyCode)) {
             int id = countyCodes.size() + 1;
             countyCodes.put(countyCode, id);

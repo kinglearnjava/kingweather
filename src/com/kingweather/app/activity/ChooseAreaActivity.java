@@ -14,11 +14,12 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.example.kingweather.R;
+import com.kingweather.app.R;
 import com.kingweather.app.db.KingWeatherDB;
 import com.kingweather.app.model.City;
 import com.kingweather.app.model.County;
 import com.kingweather.app.model.Province;
+import com.kingweather.app.util.LogUtil;
 import com.kingweather.app.util.Utility;
 
 public class ChooseAreaActivity extends Activity {
@@ -73,6 +74,9 @@ public class ChooseAreaActivity extends Activity {
                 } else if (currentLevel == LEVEL_CITY) {
                     selectedCity = cityList.get(position);
                     queryCounties();
+                } else {
+                    selectedCounty = countyList.get(position);
+                    LogUtil.v("AreaId", selectedCounty.getCountyCode());
                 }
             }
         });

@@ -1,4 +1,5 @@
-﻿101010100|beijing|北京|beijing|北京|beijing|北京|china|中国
+﻿
+101010100|beijing|北京|beijing|北京|beijing|北京|china|中国
 101010200|haidian|海淀|beijing|北京|beijing|北京|china|中国
 101010300|chaoyang|朝阳|beijing|北京|beijing|北京|china|中国
 101010400|shunyi|顺义|beijing|北京|beijing|北京|china|中国
