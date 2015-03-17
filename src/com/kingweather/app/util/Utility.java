@@ -4,10 +4,20 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 
 import com.kingweather.app.db.KingWeatherDB;
@@ -17,13 +27,37 @@ import com.kingweather.app.model.Province;
 
 public class Utility {
     
-    // 用来查重复
+    
+    /**
+     * 天气现象编码表
+     */
+    private static Map<Integer, String> weatherCodes = new HashMap<Integer, String>();
+    static {
+        String[] weatherCodeArray = {"晴","多云","阴","阵雨","雷阵雨","雷阵雨伴有冰雹"
+                ,"雨夹雪","小雨","中雨","大雨","暴雨","大暴雨","特大暴雨","阵雪"
+                ,"小雪","中雪","大雪","暴雪","雾","冻雨","沙尘暴","小到中雨","中到大雨"
+                ,"大到暴雨","暴雨到大暴雨","大暴雨到特大暴雨","小到中雪","中到大雪"
+                ,"大到暴雪","浮尘","扬沙","强沙尘暴"};
+        for (int i = 0; i < weatherCodeArray.length; i++) {
+            weatherCodes.put(i, weatherCodeArray[i]);
+        }
+        weatherCodes.put(53, "霾");
+        weatherCodes.put(99, "未知");
+    }
+    
+    /**
+     * 用来查重复
+     */
     private static Map<String, Integer> provinceCodes = new HashMap<String, Integer>();
     private static Map<String, Integer> cityCodes = new HashMap<String, Integer>();
     private static Map<String, Integer> countyCodes = new HashMap<String, Integer>();
     
-    // 直辖市
+    /**
+     * 直辖市
+     */
     private static String[] municipalities = {"北京", "上海", "重庆", "天津"};
+    
+    
    
     /**
      * 从area_id.txt文件中读取数据并存入数据库
@@ -148,5 +182,52 @@ public class Utility {
             }
         }
         return false;
+    }
+    
+    /**
+     * 解析服务器返回的JSON数据，并将解析出的数据存储到本地
+     */
+    public static void handleWeatherResponse(Context context, String response) {
+        try {
+            JSONObject jsonObject = new JSONObject(response);
+            // 城市信息
+            JSONObject city = jsonObject.getJSONObject("c");
+            String cityName = city.getString("c3");
+            String weatherCode = city.getString("c1");
+            // 天气信息 包含未来三天
+            JSONObject weatherInfo = jsonObject.getJSONObject("f");
+            JSONArray weatherInfos = weatherInfo.getJSONArray("f1");
+            // 第一天
+            JSONObject firstDayWeather = weatherInfos.getJSONObject(0);
+            String temp1 = firstDayWeather.getString("fd");
+            String temp2 = firstDayWeather.getString("fc");
+            // 白天和晚上两个天气编码，晚上更新天气时，白天数据会被清空
+            String weatherDayCode = firstDayWeather.getString("fa");
+            String weatherNightCode = firstDayWeather.getString("fb");
+            String weatherDespCode = "".equals(weatherCode) ? weatherNightCode : weatherDayCode;
+            String weatherDesp = weatherCodes.get(Integer.valueOf(weatherDespCode));
+            String publishTime = weatherInfo.getString("f0");
+            saveWeatherInfo(context, cityName, weatherCode, temp1, temp2, weatherDesp, publishTime);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    /**
+     * 将服务器返回的所有天气信息存储到SharedPreferences文件中
+     */
+    public static void saveWeatherInfo(Context context, String cityName, String weatherCode
+            , String temp1, String temp2, String weatherDesp, String publishTime) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy年M月d日", Locale.CHINA);
+        SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
+        editor.putBoolean("city_selected", true);
+        editor.putString("city_name", cityName);
+        editor.putString("weather_code", weatherCode);
+        editor.putString("temp1", temp1);
+        editor.putString("temp2", temp2);
+        editor.putString("weather_desp", weatherDesp);
+        editor.putString("publish_time", publishTime);
+        editor.putString("current_date", sdf.format(new Date()));
+        editor.commit();
     }
 }
