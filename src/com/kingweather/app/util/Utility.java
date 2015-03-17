@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,6 +21,9 @@ public class Utility {
     private static Map<String, Integer> provinceCodes = new HashMap<String, Integer>();
     private static Map<String, Integer> cityCodes = new HashMap<String, Integer>();
     private static Map<String, Integer> countyCodes = new HashMap<String, Integer>();
+    
+    // 直辖市
+    private static String[] municipalities = {"北京", "上海", "重庆", "天津"};
    
     /**
      * 从area_id.txt文件中读取数据并存入数据库
@@ -29,7 +33,7 @@ public class Utility {
         try {
             InputStream in = MyApplication.getContext().getResources()
                     .openRawResource(com.example.kingweather.R.raw.area_id);
-            input = new BufferedReader(new InputStreamReader(in));
+            input = new BufferedReader(new InputStreamReader(in, "utf-8"));
             String line = null;
             while ((line = input.readLine()) != null) {
                 handleLine(line, kingWeatherDB);
@@ -52,7 +56,9 @@ public class Utility {
      */
     private static void handleLine(String line, KingWeatherDB kingWeatherDB){
         if (!TextUtils.isEmpty(line)) {
-            String[] data = line.split("|");
+            LogUtil.v("读取文本", "读取出的文本文件每一行内容为:" + line);
+            String[] data = line.split("\\|");
+            LogUtil.v("读取文本", "data数组长度为：" + data.length + "\nDATA数组为：" + Arrays.toString(data));
             if (data != null && data.length > 0) {
                 int provinceId = handleProvince(data, kingWeatherDB);
                 int cityId = handleCity(data, provinceId, kingWeatherDB);
@@ -72,6 +78,7 @@ public class Utility {
         if (!provinceCodes.containsKey(provinceCode)) {
             // Map中的value与数据库中的id对应
             id = provinceCodes.size() + 1;
+            LogUtil.v("提取省", "省：" + provinceName+ "|省Code："  + provinceCode + " ID" + id + "数组第一个元素" + data[0] + " 长度：" + data[0].length()  );
             provinceCodes.put(provinceCode, id);
             Province province = new Province();
             province.setProvinceCode(provinceCode);
@@ -89,7 +96,13 @@ public class Utility {
     private static int handleCity(String[] data, int provinceId, 
             KingWeatherDB kingWeatherDB) {
         String cityName = data[4];
-        String cityCode = data[0].substring(3, 7);
+        // 如果是直辖市则取二位市区代码
+        String cityCode = null;
+        if (isMunicipality(cityName)) {
+            cityCode = data[0].substring(3, 5); 
+        } else {
+            cityCode = data[0].substring(3, 7);
+        }
         // 数据库中的id
         int id = -1;
         if (!cityCodes.containsKey(cityCode)) {
@@ -122,5 +135,17 @@ public class Utility {
             county.setCityId(cityId);
             kingWeatherDB.saveCounty(county);
         }
+    }
+    
+    /**
+     * 判断是否直辖市
+     */
+    private static boolean isMunicipality(String name) {
+        for (int i = 0; i < municipalities.length; i++) {
+            if (municipalities[i].equals(name)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

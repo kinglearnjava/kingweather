@@ -19,6 +19,7 @@ import com.kingweather.app.db.KingWeatherDB;
 import com.kingweather.app.model.City;
 import com.kingweather.app.model.County;
 import com.kingweather.app.model.Province;
+import com.kingweather.app.util.Utility;
 
 public class ChooseAreaActivity extends Activity {
     
@@ -98,7 +99,7 @@ public class ChooseAreaActivity extends Activity {
             titleText.setText("中国");
             currentLevel = LEVEL_PROVINCE;
         } else {
-            queryFromTxt();
+            queryFromTxt("province");
         }
     }
     
@@ -117,7 +118,7 @@ public class ChooseAreaActivity extends Activity {
             titleText.setText(selectedProvince.getProvinceName());
             currentLevel = LEVEL_CITY;
         } else {
-            queryFromTxt();
+            queryFromTxt("city");
         }
     }
     
@@ -136,14 +137,71 @@ public class ChooseAreaActivity extends Activity {
             titleText.setText(selectedCity.getCityName());
             currentLevel = LEVEL_COUNTY;
         } else {
-            queryFromTxt();
+            queryFromTxt("county");
         }
     }
     
     /**
      * 从txt文档中查询数据
      */
-    private void queryFromTxt(){
-        // 第一行代码，P502开头
+    private void queryFromTxt(final String type){
+        showProgressDialog();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Utility.txtToDatabase(kingWeatherDB);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        closeProgressDialog();
+                        if ("province".equals(type)) {
+                            queryProvinces();
+                        } else if ("city".equals(type)) {
+                            queryCities();
+                        } else if ("county".equals(type)) {
+                            queryCounties();
+                        }
+                    }
+                });
+            }
+        }).start();
+        
     }
+    
+    /**
+     * 显示进度对话框
+     */
+    private void showProgressDialog() {
+        if (progressDialog == null) {
+            progressDialog = new ProgressDialog(this);
+            progressDialog.setMessage("正在加载");
+            progressDialog.setCanceledOnTouchOutside(false);
+        }
+        progressDialog.show();
+    }
+    
+    /**
+     * 关闭进度对话框
+     */
+    private void closeProgressDialog() {
+        if (progressDialog != null) {
+            progressDialog.dismiss();
+        }
+    }
+
+    
+    /**
+     * 捕获Back按键，根据当前级别来判断，此时应该返回市列表、省列表、还是直接退出。
+     */
+    @Override
+    public void onBackPressed() {
+        if (currentLevel == LEVEL_COUNTY) {
+            queryCities();
+        } else if (currentLevel == LEVEL_CITY) {
+            queryProvinces();
+        } else {
+            finish();
+        }
+    }
+    
 }
