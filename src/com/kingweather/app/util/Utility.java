@@ -199,14 +199,15 @@ public class Utility {
             JSONArray weatherInfos = weatherInfo.getJSONArray("f1");
             // 第一天
             JSONObject firstDayWeather = weatherInfos.getJSONObject(0);
-            String temp1 = firstDayWeather.getString("fd");
-            String temp2 = firstDayWeather.getString("fc");
+            String temp1 = firstDayWeather.getString("fd") + "℃";
+            String temp2 = firstDayWeather.getString("fc") + "℃";
             // 白天和晚上两个天气编码，晚上更新天气时，白天数据会被清空
             String weatherDayCode = firstDayWeather.getString("fa");
             String weatherNightCode = firstDayWeather.getString("fb");
             String weatherDespCode = "".equals(weatherCode) ? weatherNightCode : weatherDayCode;
             String weatherDesp = weatherCodes.get(Integer.valueOf(weatherDespCode));
-            String publishTime = weatherInfo.getString("f0");
+            String publishTimeAll = weatherInfo.getString("f0"); //201503181100形式
+            String publishTime = publishTimeAll.substring(8, 10) + ":" + publishTimeAll.substring(10);
             saveWeatherInfo(context, cityName, weatherCode, temp1, temp2, weatherDesp, publishTime);
         } catch (JSONException e) {
             e.printStackTrace();

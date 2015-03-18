@@ -24,3 +24,6 @@ proguard/
 
 # Log Files
 *.log
+
+# API key
+weather_api_key.xml
