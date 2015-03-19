@@ -204,8 +204,13 @@ public class Utility {
             // 白天和晚上两个天气编码，晚上更新天气时，白天数据会被清空
             String weatherDayCode = firstDayWeather.getString("fa");
             String weatherNightCode = firstDayWeather.getString("fb");
-            String weatherDespCode = "".equals(weatherCode) ? weatherNightCode : weatherDayCode;
-            String weatherDesp = weatherCodes.get(Integer.valueOf(weatherDespCode));
+            String weatherDesp = "";
+            if (!"".equals(weatherDayCode)) {
+                weatherDesp = weatherCodes.get(Integer.valueOf(weatherDayCode)) 
+                        + "转" + weatherCodes.get(Integer.valueOf(weatherNightCode));
+            } else {
+                weatherDesp = weatherCodes.get(Integer.valueOf(weatherNightCode));
+            }
             String publishTimeAll = weatherInfo.getString("f0"); //201503181100形式
             String publishTime = publishTimeAll.substring(8, 10) + ":" + publishTimeAll.substring(10);
             saveWeatherInfo(context, cityName, weatherCode, temp1, temp2, weatherDesp, publishTime);
@@ -224,8 +229,12 @@ public class Utility {
         editor.putBoolean("city_selected", true);
         editor.putString("city_name", cityName);
         editor.putString("weather_code", weatherCode);
-        editor.putString("temp1", temp1);
-        editor.putString("temp2", temp2);
+        if (!TextUtils.isEmpty(temp1)) {
+            editor.putString("temp1", temp1);
+        }
+        if (!TextUtils.isEmpty(temp2)) {
+            editor.putString("temp2", temp2);
+        }
         editor.putString("weather_desp", weatherDesp);
         editor.putString("publish_time", publishTime);
         editor.putString("current_date", sdf.format(new Date()));
