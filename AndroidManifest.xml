@@ -25,6 +25,8 @@
             </intent-filter>
         </activity>
         <activity android:name="com.kingweather.app.activity.WeatherActivity"></activity>
+        <service android:name="com.kingweather.app.service.AutoUpdateService"></service>
+        <receiver android:name="com.kingweather.app.receiver.AutoUpdateReceiver"></receiver>
     </application>
 
 </manifest>

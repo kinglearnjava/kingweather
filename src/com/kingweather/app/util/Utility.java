@@ -261,10 +261,10 @@ public class Utility {
         editor.putBoolean("city_selected", true);
         editor.putString("city_name", cityName);
         editor.putString("weather_code", weatherCode);
-        if (!TextUtils.isEmpty(temp1)) {
+        if (temp1.length() > 1) {
             editor.putString("temp1", temp1);
         }
-        if (!TextUtils.isEmpty(temp2)) {
+        if (temp2.length() > 1) {
             editor.putString("temp2", temp2);
         }
         editor.putString("weather_desp", weatherDesp);

@@ -17,6 +17,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.kingweather.app.R;
+import com.kingweather.app.service.AutoUpdateService;
 import com.kingweather.app.util.CallbackListener;
 import com.kingweather.app.util.EncodeUtil;
 import com.kingweather.app.util.HttpUtil;
@@ -103,11 +104,7 @@ public class WeatherActivity extends Activity implements OnClickListener {
      * 服务器查询天气信息
      */
     private void queryWeatherInfo(final String areaId) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmm", Locale.CHINA);
-        String date = sdf.format(new Date());
-        String address = EncodeUtil.getQueryURLStr(areaId, EncodeUtil.FORECAST_ROUTINE, date);
-        LogUtil.v("同步失败调试", "时间字符串为：" + date);
-        LogUtil.v("同步失败调试", "查询地址为：" + address);
+        String address = EncodeUtil.getQueryURLStr(areaId, EncodeUtil.FORECAST_ROUTINE);
         HttpUtil.sendHttpRequest(address, new CallbackListener() {
             @Override
             public void onFinish(String response) {
@@ -148,6 +145,8 @@ public class WeatherActivity extends Activity implements OnClickListener {
         currentDateText.setText(prefs.getString("current_date", ""));
         weatherInfoLayout.setVisibility(View.VISIBLE);
         cityNameText.setVisibility(View.VISIBLE);
+        Intent intent = new Intent(this, AutoUpdateService.class);
+        startService(intent);
     }
 
     @Override

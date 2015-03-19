@@ -3,6 +3,9 @@ package com.kingweather.app.util;
 import java.io.InputStream;
 import java.net.URLEncoder;
 import java.security.InvalidKeyException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 import java.util.Properties;
 
 import javax.crypto.Mac;
@@ -62,7 +65,9 @@ public class EncodeUtil {
     /**
      * 获取查询天气用的网址 
      */
-    public static String getQueryURLStr (String areaId, String type, String date) {
+    public static String getQueryURLStr (String areaId, String type) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmm", Locale.CHINA);
+        String date = sdf.format(new Date());
         String data = URL_PREFIX + "areaid=" + areaId + "&type=" + type + "&date=" + date + "&appid=";
         String publicKey = standardURLEncoder(data + appId, privateKey);
         String queryURLStr = data + appId.substring(0, 6) + "&key=" + publicKey;
