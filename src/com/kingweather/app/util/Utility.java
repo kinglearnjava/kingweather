@@ -1,6 +1,7 @@
 package com.kingweather.app.util;
 
 import java.io.BufferedReader;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -17,6 +18,7 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 
@@ -25,6 +27,10 @@ import com.kingweather.app.model.City;
 import com.kingweather.app.model.County;
 import com.kingweather.app.model.Province;
 
+/**
+ * 工具类
+ * 由于使用现成的SQLite数据库，原有的读取TXT到数据库的语句不再有效
+ */
 public class Utility {
     
     
@@ -57,31 +63,57 @@ public class Utility {
      */
     private static String[] municipalities = {"北京", "上海", "重庆", "天津"};
     
+    /**
+     * 存取数据库相关的字符串
+     */
+    private static final String PACKAGE_NAME = "com.kingweather.app";
+    private static final String DB_PATH = "/data" + Environment.getDataDirectory().getAbsolutePath()
+            + "/" + PACKAGE_NAME + "/databases/" + KingWeatherDB.DB_NAME;
+    
     
    
     /**
      * 从area_id.txt文件中读取数据并存入数据库
      */
-    public static void txtToDatabase(KingWeatherDB kingWeatherDB){
-        BufferedReader input = null;
+    public static void fileToDatabase(KingWeatherDB kingWeatherDB){
+        InputStream in = null;
+        FileOutputStream out = null;
         try {
-            InputStream in = MyApplication.getContext().getResources()
-                    .openRawResource(com.kingweather.app.R.raw.area_id);
-            input = new BufferedReader(new InputStreamReader(in, "utf-8"));
-            String line = null;
-            while ((line = input.readLine()) != null) {
-                handleLine(line, kingWeatherDB);
+            in = MyApplication.getContext().getResources()
+                    .openRawResource(com.kingweather.app.R.raw.king_weather);
+            out = new FileOutputStream(DB_PATH);
+            byte[] buffer = new byte[1024];
+            int hasRead = 0;
+            while ((hasRead = in.read(buffer)) > 0) {
+                out.write(buffer, 0, hasRead);
             }
+//            // 如果要使用txt读取数据，则使用下列代码：
+//            input = new BufferedReader(new InputStreamReader(in, "utf-8"));
+//            String line = null;
+//            while ((line = input.readLine()) != null) {
+//                handleLine(line, kingWeatherDB);
+//            }
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            if (input != null){
-                try {
-                    input.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
+            try{
+                if (in != null) {
+                    in.close();
                 }
+                if (out != null) {
+                    out.close();
+                }
+            } catch(Exception e) {
+                e.printStackTrace();
             }
+         // 如果要使用txt读取数据，则使用下列代码：
+//            if (input != null){
+//                try {
+//                    input.close();
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//            }
         }
     }
     

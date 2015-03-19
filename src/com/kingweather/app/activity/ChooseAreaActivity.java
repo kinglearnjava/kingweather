@@ -123,7 +123,7 @@ public class ChooseAreaActivity extends Activity {
             titleText.setText("中国");
             currentLevel = LEVEL_PROVINCE;
         } else {
-            queryFromTxt("province");
+            queryFromFile("province");
         }
     }
     
@@ -142,7 +142,7 @@ public class ChooseAreaActivity extends Activity {
             titleText.setText(selectedProvince.getProvinceName());
             currentLevel = LEVEL_CITY;
         } else {
-            queryFromTxt("city");
+            queryFromFile("city");
         }
     }
     
@@ -161,19 +161,19 @@ public class ChooseAreaActivity extends Activity {
             titleText.setText(selectedCity.getCityName());
             currentLevel = LEVEL_COUNTY;
         } else {
-            queryFromTxt("county");
+            queryFromFile("county");
         }
     }
     
     /**
      * 从txt文档中查询数据
      */
-    private void queryFromTxt(final String type){
+    private void queryFromFile(final String type){
         showProgressDialog();
         new Thread(new Runnable() {
             @Override
             public void run() {
-                Utility.txtToDatabase(kingWeatherDB);
+                Utility.fileToDatabase(kingWeatherDB);
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
