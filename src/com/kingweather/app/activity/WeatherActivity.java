@@ -1,8 +1,4 @@
 package com.kingweather.app.activity;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -147,6 +143,14 @@ public class WeatherActivity extends Activity implements OnClickListener {
         cityNameText.setVisibility(View.VISIBLE);
         Intent intent = new Intent(this, AutoUpdateService.class);
         startService(intent);
+    }
+    
+    
+
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent(this, ChooseAreaActivity.class);
+        startActivity(intent);
     }
 
     @Override
